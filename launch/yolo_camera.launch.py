@@ -24,7 +24,11 @@ def generate_launch_description():
     )
 
     usb_cam_node = Node(
-        package="usb_cam", executable="usb_cam_node_exe", name="usb_cam", output="screen"
+        package="usb_cam",
+        executable="usb_cam_node_exe",
+        name="usb_cam",
+        output="screen",
+        parameters=[{"pixel_format": "mjpeg2rgb"}],
     )
 
     yolo_node = Node(
