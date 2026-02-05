@@ -29,7 +29,6 @@ def generate_launch_description():
         description='Annotated image topic name'
     )
 
-    # USB Camera Node
     usb_cam_node = Node(
         package='usb_cam',
         executable='usb_cam_node_exe',
@@ -37,7 +36,6 @@ def generate_launch_description():
         output='screen'
     )
 
-    # YOLO Detection Node
     yolo_node = Node(
         package='yolo26_ros2',
         executable='yolo26_ros2',

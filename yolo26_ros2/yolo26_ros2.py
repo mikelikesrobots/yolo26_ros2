@@ -125,7 +125,7 @@ class YoloDetectorNode(Node):
                     detection.results.append(hypothesis)
                     detection_array.detections.append(detection)
 
-            # Publish detections and annotated image
+            # Publish detections and annotated images
             self.det_pub.publish(detection_array)
 
             annotated_img_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding='bgr8')
