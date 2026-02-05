@@ -37,13 +37,10 @@ class YoloDetectorNode(Node):
         self.model = YOLO(full_model_path)
         self.get_logger().info("YOLO model loaded successfully")
 
-        # Create subscriber and publisher
+        # Create subscriber and publishers
         self.img_sub = self.create_subscription(Image, image_topic, self.image_callback, 10)
-
         self.det_pub = self.create_publisher(Detection2DArray, detections_topic, 10)
-
         self.annotated_img_pub = self.create_publisher(Image, annotated_image_topic, 10)
-
         self.compressed_img_pub = self.create_publisher(
             CompressedImage, annotated_image_topic + "/compressed", 10
         )
