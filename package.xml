@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>ROS 2 package for real-time object detection using YOLO26 models with USB camera integration</description>
   <maintainer email="mikelikesrobots@outlook.com">Michael Hart (Mike Likes Robots)</maintainer>
-  <license>Apache-2.0</license>
+  <license>MIT</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
