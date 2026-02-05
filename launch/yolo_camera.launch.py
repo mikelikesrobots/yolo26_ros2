@@ -10,16 +10,16 @@ def generate_launch_description():
     )
 
     image_topic_arg = DeclareLaunchArgument(
-        "image_topic", default_value="/camera/image_raw", description="Image topic name"
+        "image_topic", default_value="/image_raw", description="Image topic name"
     )
 
     detections_topic_arg = DeclareLaunchArgument(
-        "detections_topic", default_value="/camera/detections", description="Detections topic name"
+        "detections_topic", default_value="/detections", description="Detections topic name"
     )
 
     annotated_image_topic_arg = DeclareLaunchArgument(
         "annotated_image_topic",
-        default_value="/camera/image_annotated",
+        default_value="/image_annotated",
         description="Annotated image topic name",
     )
 
