@@ -88,15 +88,15 @@ ros2 run yolo26_ros2 yolo26_ros2
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| `/camera/detections` | `vision_msgs/msg/Detection2DArray` | Array of 2D object detections |
-| `/camera/image_annotated` | `sensor_msgs/msg/Image` | Uncompressed annotated image with bounding boxes |
-| `/camera/image_annotated/compressed` | `sensor_msgs/msg/CompressedImage` | JPEG compressed annotated image |
+| `/detections` | `vision_msgs/msg/Detection2DArray` | Array of 2D object detections |
+| `/image_annotated` | `sensor_msgs/msg/Image` | Uncompressed annotated image with bounding boxes |
+| `/image_annotated/compressed` | `sensor_msgs/msg/CompressedImage` | JPEG compressed annotated image |
 
 ## Subscribed Topics
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| `/camera/image_raw` | `sensor_msgs/msg/Image` | Input camera images for detection |
+| `/image_raw` | `sensor_msgs/msg/Image` | Input camera images for detection |
 
 ## Visualization
 
@@ -106,18 +106,18 @@ ros2 run yolo26_ros2 yolo26_ros2
 rviz2
 ```
 
-Add an Image display and set the topic to `/camera/image_annotated`.
+Add an Image display and set the topic to `/image_annotated`.
 
 ### Using rqt_image_view
 
 ```bash
-ros2 run rqt_image_view rqt_image_view /camera/image_annotated
+ros2 run rqt_image_view rqt_image_view image_annotated
 ```
 
 ### Viewing Detection Messages
 
 ```bash
-ros2 topic echo /camera/detections
+ros2 topic echo /detections
 ```
 
 ## License

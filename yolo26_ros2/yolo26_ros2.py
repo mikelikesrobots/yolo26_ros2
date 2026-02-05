@@ -15,9 +15,9 @@ class YoloDetectorNode(Node):
         super().__init__("yolo_detector")
 
         # Declare parameters
-        self.declare_parameter("image_topic", "/camera/image_raw")
-        self.declare_parameter("detections_topic", "/camera/detections")
-        self.declare_parameter("annotated_image_topic", "/camera/image_annotated")
+        self.declare_parameter("image_topic", "/image_raw")
+        self.declare_parameter("detections_topic", "/detections")
+        self.declare_parameter("annotated_image_topic", "/image_annotated")
         self.declare_parameter("model_name", "yolo26n.pt")
 
         # Get parameters
