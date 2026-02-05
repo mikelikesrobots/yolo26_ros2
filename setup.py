@@ -8,11 +8,8 @@ data_files = [
         ['resource/' + package_name]),
     ('share/' + package_name, ['package.xml']),
     ('share/' + package_name + '/launch', glob.glob('launch/*.launch.py')),
+    ('share/' + package_name + '/models', glob.glob('models/*')),
 ]
-
-out_path = "share/" + package_name + "/models"
-data_files += [(out_path, glob.glob("models/*"))]
-
 
 setup(
     name=package_name,
