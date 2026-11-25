@@ -55,6 +55,13 @@ class YoloDetectorNode(Node):
 
         # Process each detection
         img_vis = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+
+        # Scale annotations according to image resolution
+        image_height, image_width = img_vis.shape[:2]
+        font_scale = max(image_width, image_height) / 1000.0
+        font_thickness = max(1, int(round(font_scale * 2)))
+        text_offset = int(round(font_scale * 8))
+
         for result in results:
             if result.masks is not None:
                 overlay = img_vis.copy()
@@ -92,7 +99,13 @@ class YoloDetectorNode(Node):
                 y1 = int(y1)
                 x2 = int(x2)
                 y2 = int(y2)
-                cv2.rectangle(img_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.rectangle(
+                    img_vis,
+                    (x1, y1),
+                    (x2, y2),
+                    (0, 255, 0),
+                    font_thickness,
+                )
 
                 label = int(box.cls[0])
                 label_readable = self.model.names[label]
@@ -107,11 +120,11 @@ class YoloDetectorNode(Node):
                 cv2.putText(
                     img_vis,
                     text,
-                    (x1, max(y1 - 5, 0)),
+                    (x1, max(y1 - text_offset, 0)),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
+                    font_scale,
                     (0, 255, 0),
-                    1,
+                    font_thickness,
                     cv2.LINE_AA,
                 )
 
