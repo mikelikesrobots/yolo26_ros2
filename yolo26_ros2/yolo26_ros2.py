@@ -14,17 +14,11 @@ class YoloDetectorNode(Node):
     def __init__(self):
         super().__init__("yolo_detector")
 
-        # Declare parameters
-        self.declare_parameter("image_topic", "/image_raw")
-        self.declare_parameter("detections_topic", "/detections")
-        self.declare_parameter("annotated_image_topic", "/image_annotated")
-        self.declare_parameter("model_name", "yolo26n.pt")
+        image_topic = "~/image_raw"
+        detections_topic = "~/detections"
+        annotated_image_topic = "~/image_annotated"
 
-        # Get parameters
-        image_topic = self.get_parameter("image_topic").value
-        detections_topic = self.get_parameter("detections_topic").value
-        model_name = self.get_parameter("model_name").value
-        annotated_image_topic = self.get_parameter("annotated_image_topic").value
+        model_name = self.declare_parameter("model_name", "yolo26n.pt").value
 
         # Initialize CV Bridge
         self.bridge = CvBridge()
