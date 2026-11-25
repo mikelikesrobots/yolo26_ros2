@@ -6,7 +6,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     model_name_arg = DeclareLaunchArgument(
-        "model_name", default_value="yolo26n.pt", description="YOLO model filename"
+        "model_name", default_value="yolo26n-seg.pt", description="YOLO model filename"
     )
 
     image_topic_arg = DeclareLaunchArgument(

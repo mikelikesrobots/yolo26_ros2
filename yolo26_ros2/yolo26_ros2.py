@@ -18,7 +18,7 @@ class YoloDetectorNode(Node):
         detections_topic = "~/detections"
         annotated_image_topic = "~/image_annotated"
 
-        model_name = self.declare_parameter("model_name", "yolo26n.pt").value
+        model_name = self.declare_parameter("model_name", "yolo26n-seg.pt").value
 
         # Initialize CV Bridge
         self.bridge = CvBridge()
@@ -47,7 +47,7 @@ class YoloDetectorNode(Node):
         img_rgb = self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8")
 
         # Run YOLO detection
-        results = self.model(img_rgb, verbose=False)
+        results = self.model(img_rgb, retina_masks=True, verbose=False)
 
         # Create Detection2DArray message
         detection_array = Detection2DArray()
@@ -56,8 +56,26 @@ class YoloDetectorNode(Node):
         # Process each detection
         img_vis = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
         for result in results:
-            boxes = result.boxes
-            for box in boxes:
+            if result.masks is not None:
+                overlay = img_vis.copy()
+                for i, mask in enumerate(result.masks.data):
+                    mask = mask.cpu().numpy().astype(bool)
+
+                    # Generate instance-specific colour (BGR)
+                    color = tuple(
+                        int(c) for c in cv2.cvtColor(
+                            np.uint8([[[i * 37 % 180, 255, 255]]]),
+                            cv2.COLOR_HSV2BGR,
+                        )[0, 0]
+                    )
+
+                    overlay[mask] = color
+
+                # Draw segmentation masks with 50% alpha
+                segm_weight = 0.5
+                img_vis = cv2.addWeighted(overlay, segm_weight, img_vis, 1-segm_weight, 0)
+
+            for box in result.boxes:
                 detection = Detection2D()
 
                 # Get bounding box coordinates (xyxy format)
