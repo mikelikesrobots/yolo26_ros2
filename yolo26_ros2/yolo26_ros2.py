@@ -44,16 +44,17 @@ class YoloDetectorNode(Node):
 
     def image_callback(self, msg):
         # Convert ROS Image to OpenCV format
-        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+        img_rgb = self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8")
 
         # Run YOLO detection
-        results = self.model(cv_image, verbose=False)
+        results = self.model(img_rgb, verbose=False)
 
         # Create Detection2DArray message
         detection_array = Detection2DArray()
         detection_array.header = msg.header
 
         # Process each detection
+        img_vis = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
         for result in results:
             boxes = result.boxes
             for box in boxes:
@@ -73,7 +74,7 @@ class YoloDetectorNode(Node):
                 y1 = int(y1)
                 x2 = int(x2)
                 y2 = int(y2)
-                cv2.rectangle(cv_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.rectangle(img_vis, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
                 label = int(box.cls[0])
                 label_readable = self.model.names[label]
@@ -86,7 +87,7 @@ class YoloDetectorNode(Node):
 
                 text = f"{label_readable}: {score:.2f}"
                 cv2.putText(
-                    cv_image,
+                    img_vis,
                     text,
                     (x1, max(y1 - 5, 0)),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -102,14 +103,13 @@ class YoloDetectorNode(Node):
         # Publish detections and annotated images
         self.det_pub.publish(detection_array)
 
-        annotated_img_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
-        annotated_img_msg.header = msg.header
+        annotated_img_msg = self.bridge.cv2_to_imgmsg(cvim = img_vis, header = msg.header, encoding="bgr8")
         self.annotated_img_pub.publish(annotated_img_msg)
 
         compressed_image_msg = CompressedImage()
         compressed_image_msg.header = msg.header
         compressed_image_msg.format = "jpeg"
-        compressed_image_msg.data = np.array(cv2.imencode(".jpg", cv_image)[1]).tobytes()
+        compressed_image_msg.data = np.array(cv2.imencode(".jpg", img_vis)[1]).tobytes()
         self.compressed_img_pub.publish(compressed_image_msg)
 
         self.get_logger().debug(f"Published {len(detection_array.detections)} detections")
