@@ -43,80 +43,76 @@ class YoloDetectorNode(Node):
         self.get_logger().info(f"Publishing detections to: {detections_topic}")
 
     def image_callback(self, msg):
-        try:
-            # Convert ROS Image to OpenCV format
-            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+        # Convert ROS Image to OpenCV format
+        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
-            # Run YOLO detection
-            results = self.model(cv_image, verbose=False)
+        # Run YOLO detection
+        results = self.model(cv_image, verbose=False)
 
-            # Create Detection2DArray message
-            detection_array = Detection2DArray()
-            detection_array.header = msg.header
+        # Create Detection2DArray message
+        detection_array = Detection2DArray()
+        detection_array.header = msg.header
 
-            # Process each detection
-            for result in results:
-                boxes = result.boxes
-                for box in boxes:
-                    detection = Detection2D()
+        # Process each detection
+        for result in results:
+            boxes = result.boxes
+            for box in boxes:
+                detection = Detection2D()
 
-                    # Get bounding box coordinates (xyxy format)
-                    x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                # Get bounding box coordinates (xyxy format)
+                x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
 
-                    # Set bounding box center and size
-                    detection.bbox.center.position.x = float((x1 + x2) / 2)
-                    detection.bbox.center.position.y = float((y1 + y2) / 2)
-                    detection.bbox.size_x = float(x2 - x1)
-                    detection.bbox.size_y = float(y2 - y1)
+                # Set bounding box center and size
+                detection.bbox.center.position.x = float((x1 + x2) / 2)
+                detection.bbox.center.position.y = float((y1 + y2) / 2)
+                detection.bbox.size_x = float(x2 - x1)
+                detection.bbox.size_y = float(y2 - y1)
 
-                    # Draw bounding box onto image
-                    x1 = int(x1)
-                    y1 = int(y1)
-                    x2 = int(x2)
-                    y2 = int(y2)
-                    cv2.rectangle(cv_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                # Draw bounding box onto image
+                x1 = int(x1)
+                y1 = int(y1)
+                x2 = int(x2)
+                y2 = int(y2)
+                cv2.rectangle(cv_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-                    label = int(box.cls[0])
-                    label_readable = self.model.names[label]
-                    score = float(box.conf[0])
+                label = int(box.cls[0])
+                label_readable = self.model.names[label]
+                score = float(box.conf[0])
 
-                    # Set detection hypothesis (class and confidence)
-                    hypothesis = ObjectHypothesisWithPose()
-                    hypothesis.hypothesis.class_id = str(label)
-                    hypothesis.hypothesis.score = score
+                # Set detection hypothesis (class and confidence)
+                hypothesis = ObjectHypothesisWithPose()
+                hypothesis.hypothesis.class_id = str(label)
+                hypothesis.hypothesis.score = score
 
-                    text = f"{label_readable}: {score:.2f}"
-                    cv2.putText(
-                        cv_image,
-                        text,
-                        (x1, max(y1 - 5, 0)),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,
-                        (0, 255, 0),
-                        1,
-                        cv2.LINE_AA,
-                    )
+                text = f"{label_readable}: {score:.2f}"
+                cv2.putText(
+                    cv_image,
+                    text,
+                    (x1, max(y1 - 5, 0)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 255, 0),
+                    1,
+                    cv2.LINE_AA,
+                )
 
-                    detection.results.append(hypothesis)
-                    detection_array.detections.append(detection)
+                detection.results.append(hypothesis)
+                detection_array.detections.append(detection)
 
-            # Publish detections and annotated images
-            self.det_pub.publish(detection_array)
+        # Publish detections and annotated images
+        self.det_pub.publish(detection_array)
 
-            annotated_img_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
-            annotated_img_msg.header = msg.header
-            self.annotated_img_pub.publish(annotated_img_msg)
+        annotated_img_msg = self.bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
+        annotated_img_msg.header = msg.header
+        self.annotated_img_pub.publish(annotated_img_msg)
 
-            compressed_image_msg = CompressedImage()
-            compressed_image_msg.header = msg.header
-            compressed_image_msg.format = "jpeg"
-            compressed_image_msg.data = np.array(cv2.imencode(".jpg", cv_image)[1]).tobytes()
-            self.compressed_img_pub.publish(compressed_image_msg)
+        compressed_image_msg = CompressedImage()
+        compressed_image_msg.header = msg.header
+        compressed_image_msg.format = "jpeg"
+        compressed_image_msg.data = np.array(cv2.imencode(".jpg", cv_image)[1]).tobytes()
+        self.compressed_img_pub.publish(compressed_image_msg)
 
-            self.get_logger().debug(f"Published {len(detection_array.detections)} detections")
-
-        except Exception as e:
-            self.get_logger().error(f"Error processing image: {str(e)}")
+        self.get_logger().debug(f"Published {len(detection_array.detections)} detections")
 
 
 def main(args=None):
