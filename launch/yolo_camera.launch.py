@@ -6,7 +6,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     model_name_arg = DeclareLaunchArgument(
-        "model_name", default_value="yolo26n.pt", description="YOLO model filename"
+        "model_name", default_value="yolo26n-seg.pt", description="YOLO model filename"
     )
 
     image_topic_arg = DeclareLaunchArgument(
@@ -24,24 +24,21 @@ def generate_launch_description():
     )
 
     usb_cam_node = Node(
-        package="usb_cam",
-        executable="usb_cam_node_exe",
-        name="usb_cam",
+        package="camera_ros",
+        executable="camera_node",
+        name="camera",
         output="screen",
-        parameters=[{"pixel_format": "mjpeg2rgb"}],
     )
 
     yolo_node = Node(
         package="yolo26_ros2",
         executable="yolo26_ros2",
         name="yolo_detector",
-        parameters=[
-            {
-                "image_topic": LaunchConfiguration("image_topic"),
-                "detections_topic": LaunchConfiguration("detections_topic"),
-                "annotated_image_topic": LaunchConfiguration("annotated_image_topic"),
-                "model_name": LaunchConfiguration("model_name"),
-            }
+        parameters=[{
+            "model_name": LaunchConfiguration("model_name"),
+        }],
+        remappings=[
+            ("/yolo_detector/image_raw", "/camera/image_raw"),
         ],
         output="screen",
     )

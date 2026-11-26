@@ -8,12 +8,12 @@ The annotated images are published in both raw and compressed forms for easier c
 
 This package requires ROS 2 Humble or later. Follow the official installation guide:
 
-- [ROS 2 Humble Installation](https://docs.ros.org/en/humble/Installation.html)
+- [ROS 2](https://docs.ros.org/en/lyrical/Installation.html)
 
 After installing ROS 2, source the setup file:
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/lyrical/setup.bash
 ```
 
 All other dependencies will be installed during the compilation process.
@@ -37,7 +37,7 @@ git clone https://github.com/mikelikesrobots/yolo26_ros2.git
 
 ```bash
 cd ~/ros2_ws
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths src --ignore-src -y --as-root=pip:false
 ```
 
 4. Build the package:
@@ -75,28 +75,28 @@ ros2 launch yolo26_ros2 yolo_camera.launch.py
 #### 1. Start the USB Camera
 
 ```bash
-ros2 run usb_cam usb_cam_node_exe
+ros2 run camera_ros camera_node
 ```
 
 #### 2. Start the YOLO Detection Node
 
 ```bash
-ros2 run yolo26_ros2 yolo26_ros2
+ros2 run yolo26_ros2 yolo26_ros2 --ros-param --remap /yolo_detector/image_raw:=/camera/image_raw
 ```
 
 ## Published Topics
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| `/detections` | `vision_msgs/msg/Detection2DArray` | Array of 2D object detections |
-| `/image_annotated` | `sensor_msgs/msg/Image` | Uncompressed annotated image with bounding boxes |
-| `/image_annotated/compressed` | `sensor_msgs/msg/CompressedImage` | JPEG compressed annotated image |
+| `~/detections` | `vision_msgs/msg/Detection2DArray` | Array of 2D object detections |
+| `~/image_annotated` | `sensor_msgs/msg/Image` | Uncompressed annotated image with bounding boxes |
+| `~/image_annotated/compressed` | `sensor_msgs/msg/CompressedImage` | JPEG compressed annotated image |
 
 ## Subscribed Topics
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| `/image_raw` | `sensor_msgs/msg/Image` | Input camera images for detection |
+| `~/image_raw` | `sensor_msgs/msg/Image` | Input camera images for detection |
 
 ## Visualization
 
@@ -111,13 +111,13 @@ Add an Image display and set the topic to `/image_annotated`.
 ### Using rqt_image_view
 
 ```bash
-ros2 run rqt_image_view rqt_image_view image_annotated
+ros2 run rqt_image_view rqt_image_view /yolo_detector/image_annotated
 ```
 
 ### Viewing Detection Messages
 
 ```bash
-ros2 topic echo /detections
+ros2 topic echo /yolo_detector/detections
 ```
 
 ## License
